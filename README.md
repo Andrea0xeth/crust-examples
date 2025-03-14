@@ -1,6 +1,6 @@
 # Crust Examples
 
-Questa repository contiene esempi di integrazione con il protocollo di archiviazione Crust su blockchain Algorand.
+Questa repository contiene esempi di integrazione con il protocollo di archiviazione Crust su blockchain Algorand. Il progetto fornisce strumenti e applicazioni per interagire con il sistema di archiviazione decentralizzata, consentendo di caricare file su IPFS e gestire ordini di archiviazione tramite smart contract Algorand.
 
 ## Demo Online
 
@@ -8,23 +8,22 @@ Puoi provare l'applicazione Storage Price Estimator online qui: [https://storage
 
 ## Struttura della Repository
 
-- **typescript/**: Esempi di implementazione in TypeScript
-  - `src/StorageOrderClient.ts`: Client per interagire con il contratto di archiviazione
+- **typescript/**: Implementazione client in TypeScript
+  - `src/StorageOrderClient.ts`: Client completo per interagire con il contratto di archiviazione
   - `src/index.ts`: Esempio di utilizzo delle API per caricare file e ordinare archiviazione
 - **application.json**: Specifiche dell'applicazione e metodi ABI disponibili
 - **storage-price-estimator/**: Applicazione web per stimare i costi di archiviazione
 
-## Esempi Disponibili
-
-### Client TypeScript
+## Client TypeScript
 
 La directory `typescript/` contiene un client TypeScript completo per interagire con il contratto di archiviazione su Algorand. Include funzionalità come:
 
-- Caricare file su IPFS
-- Ottenere il prezzo di archiviazione di un file
-- Effettuare ordini di archiviazione
+- **Autenticazione Web3**: Generazione di header di autenticazione per interazioni sicure
+- **Upload su IPFS**: Caricamento di file su IPFS con verifica dell'integrità
+- **Calcolo Prezzi**: Ottenere il prezzo di archiviazione in base alla dimensione del file
+- **Gestione Ordini**: Effettuare ordini di archiviazione con supporto per archiviazione permanente o temporanea
 
-Per eseguire l'esempio TypeScript:
+### Esecuzione del Client TypeScript
 
 ```bash
 cd typescript
@@ -33,18 +32,28 @@ npm install
 npm start
 ```
 
-### Stimatore di Prezzi di Archiviazione
+## Storage Price Estimator
 
-Nella directory `storage-price-estimator/` è disponibile un'applicazione web che permette di stimare il costo di archiviazione dei file sulla blockchain Algorand.
+Nella directory `storage-price-estimator/` è disponibile un'applicazione web che permette di stimare il costo di archiviazione dei file sulla blockchain Algorand tramite un'interfaccia utente intuitiva.
 
-#### Caratteristiche
+### Caratteristiche
 
-- Upload di file e stima immediata del costo di archiviazione
-- Opzione per archiviazione temporanea o permanente
-- Visualizzazione del costo in microAlgos e Algos
-- Interfaccia utente intuitiva
+- **Interfaccia Modern UI/UX**: Design reattivo e ottimizzato per dispositivi mobili
+- **Upload di File**: Supporto per trascinamento (drag & drop) e selezione tramite dialog
+- **Stima Immediata**: Calcolo dei costi in tempo reale
+- **Visualizzazione Multimoneta**: Prezzi in ALGO, CRUST, USD ed EUR
+- **Opzioni Avanzate**: Personalizzazione dei parametri di calcolo
+- **Tooltips Informativi**: Guida contestuale per gli utenti
 
-#### Come Eseguire l'Applicazione Stimatore di Prezzi
+### Miglioramenti Recenti
+
+- **Tooltip Interattivi**: Aggiunti tooltip in tutti i componenti principali per migliorare l'esperienza utente
+- **Gestione Upload File Migliorata**: Risolti problemi con la selezione dei file e migliorato feedback all'utente
+- **Range Slider Estesi**: Aumentati i valori massimi per i parametri avanzati per supportare scenari di pricing più flessibili
+- **Aggiornamento Tab Permanente/Temporaneo**: Migliorata la visualizzazione dei dettagli di calcolo quando si cambia tipo di archiviazione
+- **Gestione Errori Avanzata**: Migliorati i messaggi di errore per facilitare la risoluzione dei problemi
+
+### Come Eseguire l'Applicazione
 
 Per utilizzare questa applicazione:
 
@@ -70,17 +79,38 @@ Per utilizzare questa applicazione:
    npm run dev
    ```
 
-#### Nota Importante
+## Specifiche Tecniche
 
-Assicurati di eseguire tutti i comandi npm dalla directory corretta. Se riscontri errori come:
+### Architettura del Storage Price Estimator
+
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
+- **Backend**: Node.js, Express.js
+- **Template Engine**: EJS
+- **Integrazione Blockchain**: AlgoSDK, AlgoKit
+- **API**: Integrazione con CoinGecko per prezzi token in tempo reale
+
+### Algoritmo di Calcolo Prezzi
+
+Il prezzo di archiviazione è calcolato secondo la seguente formula:
+
 ```
-Could not read package.json: Error: ENOENT: no such file or directory
+sizeInKB = ceiling(size / 1024)
+byteCost = sizeInKB * bytePrice
+totalPrice = basePrice + byteCost
+
+if (isPermanent) {
+    totalPrice *= permanentMultiplier
+}
 ```
-Significa che devi navigare nella directory specifica dell'esempio che vuoi eseguire (ad esempio `cd storage-price-estimator`) prima di eseguire i comandi npm.
 
-## Funzioni di Base
+Dove:
+- `basePrice`: Prezzo base fisso (in microALGO)
+- `bytePrice`: Prezzo per KB (in microALGO)
+- `permanentMultiplier`: Moltiplicatore per archiviazione permanente (default: 5)
 
-### Ottenere il Prezzo di Archiviazione
+### Funzioni Core del Client TypeScript
+
+#### Ottenere il Prezzo di Archiviazione
 
 ```javascript
 /**
@@ -98,7 +128,7 @@ async function getPrice(algod, appClient, size, isPermanent = false) {
 }
 ```
 
-### Effettuare un Ordine di Archiviazione
+#### Effettuare un Ordine di Archiviazione
 
 ```javascript
 /**
@@ -127,14 +157,19 @@ async function placeOrder(
 }
 ```
 
+## Deployment
+
+L'applicazione Storage Price Estimator è configurata per il deployment su Vercel tramite il file `vercel.json` incluso nel progetto.
+
 ## Contribuire
 
-Sentiti libero di contribuire a questo repository aggiungendo nuovi esempi o migliorando quelli esistenti. 
+Sentiti libero di contribuire a questo repository aggiungendo nuovi esempi o migliorando quelli esistenti. Ecco come puoi contribuire:
 
-sizeInKB = ceiling(size / 1024)
-byteCost = sizeInKB * bytePrice
-totalPrice = basePrice + byteCost
+1. Fai un fork del repository
+2. Crea un branch per le tue modifiche: `git checkout -b feature/nuova-feature`
+3. Effettua le modifiche e testale
+4. Invia una pull request con una descrizione dettagliata delle modifiche
 
-if (isPermanent) {
-    totalPrice *= permanentMultiplier
-} 
+## Licenza
+
+Questo progetto è distribuito con licenza open source. Consulta il file LICENSE per maggiori dettagli. 
