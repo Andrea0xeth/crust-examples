@@ -1,0 +1,164 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.5;
+}
+
+.card {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    padding: 0.8rem 1rem;
+}
+
+.btn-primary {
+    background-color: #0367a6;
+    border-color: #0367a6;
+}
+
+.btn-primary:hover {
+    background-color: #024e7c;
+    border-color: #024e7c;
+}
+
+.form-control {
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus {
+    border-color: #0367a6;
+    box-shadow: 0 0 0 0.25rem rgba(3, 103, 166, 0.15);
+}
+
+.form-check-input:checked {
+    background-color: #0367a6;
+    border-color: #0367a6;
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+.alert-secondary {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    font-size: 0.95rem;
+}
+
+.alert-success {
+    background-color: #e3fcef;
+    border-color: #d0f7e6;
+    color: #0c844e;
+}
+
+.spinner-border {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* Stili per la sidebar dei risultati */
+.sidebar-results {
+    position: sticky;
+    top: 20px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar-results .card-header {
+    background-color: #17a2b8;
+    font-size: 1.1rem;
+}
+
+.price-section {
+    border-left: 4px solid #0367a6;
+    background-color: #f1f8ff !important;
+    border-radius: 6px;
+}
+
+.price-section h4 {
+    color: #0367a6;
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+.price-section h5 span.small {
+    color: #0367a6;
+    font-weight: bold;
+}
+
+.calc-details {
+    font-size: 0.9rem;
+    background-color: #fcfcfc;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+}
+
+.d-flex.justify-content-between {
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.d-flex.justify-content-between:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-range {
+    height: 1.5rem;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #0367a6;
+}
+
+.form-range::-moz-range-thumb {
+    background: #0367a6;
+}
+
+ul {
+    padding-left: 1.2rem;
+}
+
+/* Stile per le icone dei tooltip */
+.bi-info-circle {
+    color: #0367a6;
+    font-size: 0.85rem;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity 0.3s ease;
+}
+
+.bi-info-circle:hover {
+    opacity: 1;
+}
+
+/* Miglioramento stile tooltip di Bootstrap */
+.tooltip {
+    font-size: 0.85rem;
+}
+
+.tooltip .tooltip-inner {
+    max-width: 250px;
+    background-color: #2d3748;
+    padding: 8px 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    text-align: left;
+    line-height: 1.4;
+}
+
+/* Media query per responsiveness */
+@media (max-width: 991px) {
+    .sidebar-results {
+        margin-top: 20px;
+        position: static;
+    }
+} 
