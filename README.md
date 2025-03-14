@@ -53,31 +53,74 @@ Nella directory `storage-price-estimator/` è disponibile un'applicazione web ch
 - **Aggiornamento Tab Permanente/Temporaneo**: Migliorata la visualizzazione dei dettagli di calcolo quando si cambia tipo di archiviazione
 - **Gestione Errori Avanzata**: Migliorati i messaggi di errore per facilitare la risoluzione dei problemi
 
-### Come Eseguire l'Applicazione
+### Installazione e Avvio dell'Applicazione
 
-Per utilizzare questa applicazione:
+#### Prerequisiti
 
-1. Naviga nella directory dell'applicazione:
+Prima di iniziare, assicurati di avere installato:
+
+- **Node.js** (versione 14.x o superiore)
+- **npm** (normalmente installato con Node.js)
+- **Git** (per clonare il repository)
+
+#### Passaggi per l'Installazione
+
+1. **Clona il repository** (se non l'hai già fatto):
+   ```bash
+   git clone https://github.com/Andrea0xeth/crust-examples.git
+   cd crust-examples
+   ```
+
+2. **Naviga nella directory dell'applicazione**:
    ```bash
    cd storage-price-estimator
    ```
 
-2. Installa le dipendenze:
+3. **Installa le dipendenze**:
    ```bash
    npm install
    ```
 
-3. Avvia l'applicazione:
+#### Opzioni di Avvio
+
+Puoi avviare l'applicazione in diverse modalità:
+
+1. **Modalità Produzione**:
    ```bash
    npm start
    ```
+   L'applicazione sarà disponibile all'indirizzo [http://localhost:3000](http://localhost:3000)
 
-4. Apri il browser all'indirizzo [http://localhost:3000](http://localhost:3000)
-
-5. Per eseguire l'applicazione in modalità sviluppo con riavvio automatico:
+2. **Modalità Sviluppo** (con riavvio automatico):
    ```bash
    npm run dev
    ```
+   Questa modalità riavvia automaticamente il server quando vengono apportate modifiche ai file.
+
+3. **Specificare una porta diversa**:
+   ```bash
+   PORT=8080 npm start
+   ```
+   Questo comando avvia l'applicazione sulla porta 8080 anziché 3000.
+
+#### Verifica dell'Installazione
+
+Per verificare che l'applicazione sia in esecuzione correttamente:
+
+1. Apri il browser all'indirizzo indicato (default: [http://localhost:3000](http://localhost:3000))
+2. Dovrebbe apparire l'interfaccia dello Storage Price Estimator
+3. Prova a caricare un file per verificare che il calcolo dei prezzi funzioni correttamente
+
+#### Risoluzione dei Problemi
+
+Se riscontri problemi durante l'installazione o l'avvio:
+
+- **Errore "Cannot find module"**: Assicurati di aver eseguito `npm install` nella directory corretta
+- **Errore di porta in uso**: Cambia la porta utilizzando la variabile d'ambiente `PORT`
+- **Problemi di connessione API**: Verifica che la tua connessione internet sia attiva e che non ci siano blocchi del firewall
+- **Errori di visualizzazione nel browser**: Prova a cancellare la cache del browser o utilizza la modalità di navigazione in incognito
+
+Per problemi più specifici, consulta la sezione Issues del repository GitHub.
 
 ## Specifiche Tecniche
 
