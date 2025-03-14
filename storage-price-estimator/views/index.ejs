@@ -4,84 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crust x Algorand Storage Estimator</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <!-- Aggiungi Tippy.js per maggiore compatibilità con i tooltip -->
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
 </head>
 <body>
-    <div class="container-fluid mt-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-xl-9 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="text-center mb-0">Stima Costi Storage IPFS via Crust + Algorand</h2>
+    <div class="main-container">
+        <div class="container py-4">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <!-- Header Card -->
+                    <div class="card main-card">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <div class="logo-container me-3">
+                                    <svg viewBox="0 0 40 40" class="main-logo">
+                                        <path d="M20 3a17 17 0 100 34 17 17 0 000-34zm0 30a13 13 0 110-26 13 13 0 010 26z" fill="currentColor"/>
+                                        <path d="M20 10a10 10 0 100 20 10 10 0 000-20zm0 16a6 6 0 110-12 6 6 0 010 12z" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h1 class="card-title mb-0">Storage Estimator</h1>
+                                    <p class="card-subtitle mb-0">Crust x Algorand</p>
+                                </div>
+                            </div>
                     </div>
                     <div class="card-body">
-                        <!-- Breve spiegazione dell'integrazione IPFS-Crust-Algorand -->
-                        <div class="alert alert-info mb-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <strong>Come funziona:</strong>
-                                <i class="bi bi-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Questo calcolatore stima il costo di archiviazione decentralizzata attraverso più tecnologie blockchain"></i>
+                            <!-- Market Pricing Section -->
+                            <div class="info-panel">
+                                <h2>
+                                    Market Pricing 
+                                    <span id="onChainIndicator" class="badge badge-highlight badge-source" title="Prezzi derivati dal contratto Algorand Mainnet">ON-CHAIN</span>
+                                    <span class="badge badge-highlight badge-source badge-api" title="Prezzi dei token forniti da CoinGecko API">COINGECKO</span>
+                                    <span id="priceUpdateTimer" class="badge badge-timer ms-2" title="Tempo rimanente al prossimo aggiornamento automatico dei prezzi"><span id="priceUpdateCountdown">120</span>s</span>
+                                </h2>
+                                
+                                <div class="market-rates">
+                                    <div id="algoRateIndicator" class="token-price" title="Prezzo corrente di Algorand in USD">ALGO: $0.00</div>
+                                    <div id="crustRateIndicator" class="token-price" title="Prezzo corrente di Crust Network in USD">CRUST: $0.00</div>
+                                    <button id="refreshRatesBtn" class="btn-refresh" title="Aggiorna i prezzi manualmente">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="pricing-params-container">
+                                    <div class="pricing-params-header">
+                                        <div title="Prezzi per storage temporaneo (standard)">Temporaneo</div>
+                                        <div title="Prezzi per storage permanente (5x)">Permanente</div>
+                                    </div>
+                                    
+                                    <div class="pricing-params-row">
+                                        <div class="param-label" title="Costo fisso base per l'archiviazione">Base:</div>
+                                        <div class="param-values">
+                                            <span id="tempBasePriceDisplay" class="param-value" title="Costo base per storage temporaneo">200,000 µA</span>
+                                            <span id="permBasePriceDisplay" class="param-value" title="Costo base per storage permanente">1,000,000 µA</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pricing-params-row">
+                                        <div class="param-label" title="Costo per ogni kilobyte (KB) di dati">KB:</div>
+                                        <div class="param-values">
+                                            <span id="tempKbPriceDisplay" class="param-value" title="Costo per KB di storage temporaneo">125 µA</span>
+                                            <span id="permKbPriceDisplay" class="param-value" title="Costo per KB di storage permanente">625 µA</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pricing-params-row">
+                                        <div class="param-label" title="Costo totale per memorizzare 1KB di dati">1KB:</div>
+                                        <div class="param-values">
+                                            <span id="temp1KbPriceDisplay" class="param-value" title="Costo totale di 1KB per storage temporaneo">200,125 µA</span>
+                                            <span id="perm1KbPriceDisplay" class="param-value" title="Costo totale di 1KB per storage permanente">1,000,625 µA</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <ol class="mb-0 small">
+
+                            <!-- How It Works Accordion -->
+                            <div class="accordion mb-4" id="infoAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInfo" aria-expanded="false" aria-controls="collapseInfo">
+                                            <i class="bi bi-info-circle me-2"></i> Come funziona
+                                        </button>
+                                    </h2>
+                                    <div id="collapseInfo" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
+                                        <div class="accordion-body">
+                                            <ol class="mb-0">
                                 <li>I file vengono archiviati su <strong>IPFS</strong> (storage decentralizzato)</li>
                                 <li><strong>Crust Network</strong> garantisce che i file rimangano disponibili su IPFS (pinnaggio)</li>
                                 <li>Il pagamento per il servizio avviene in <strong>Algorand (ALGO)</strong></li>
+                                <li>Il <strong>prezzo di storage</strong> viene calcolato con gli stessi parametri utilizzati dal <strong>contratto Crust su Algorand Mainnet</strong></li>
                             </ol>
-                            <div id="tokenPrices" class="mt-2 text-end">
-                                <% if (algoPrice && crustPrice) { %>
-                                <span class="badge bg-primary">ALGO: $<span id="algoPrice"><%= algoPrice.toFixed(4) %></span></span>
-                                <span class="badge bg-info">CRUST: $<span id="crustPrice"><%= crustPrice.toFixed(4) %></span></span>
-                                <small class="d-block mt-1">Aggiorno tra <span id="priceUpdateCountdown">120</span> secondi</small>
-                                <% } else { %>
-                                <span class="badge bg-warning">Prezzi non disponibili</span>
-                                <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pricing Calculator Form -->
+                            <form id="uploadForm" enctype="multipart/form-data">
+                                <div class="row gx-4 mb-4">
+                                    <!-- File Upload Area (colonna sinistra) -->
+                                    <div class="col-md-8">
+                                        <div class="upload-container h-100">
+                                            <div class="file-upload-area" id="dropzone">
+                                                <input type="file" class="file-input" id="file" name="file" required>
+                                                <div class="upload-content">
+                                                    <div class="upload-icon">
+                                                        <i class="bi bi-cloud-arrow-up"></i>
+                                                    </div>
+                                                    <h3 class="upload-title">Seleziona un file</h3>
+                                                    <p class="upload-subtitle">o trascina qui il file</p>
+                                                    <div class="selected-file" style="display: none;">
+                                                        <i class="bi bi-file-earmark"></i>
+                                                        <span class="file-name"></span>
+                                                        <span class="file-size"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
                             </div>
                         </div>
                         
-                        <form id="uploadForm" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label for="file" class="form-label">
-                                    Seleziona un file
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Seleziona il file che vuoi archiviare su IPFS tramite Crust Network, con pagamento in Algorand"></i>
-                                </label>
-                                <input type="file" class="form-control" id="file" name="file" required>
-                                <div class="form-text">Il costo verrà calcolato in base alla dimensione del file e alle impostazioni di archiviazione su IPFS.</div>
+                                    <!-- Pulsante calcolo (colonna destra) -->
+                                    <div class="col-md-4 mb-4">
+                                        <div class="storage-options">
+                                            <button type="button" id="calculateBtn" class="btn btn-primary calculate-btn mb-3" title="Verranno visualizzati sia i costi per storage temporaneo (1x) che permanente (5x)">Calcola costo</button>
+                                        </div>
+                                    </div>
                             </div>
                             
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="isPermanent" name="isPermanent" value="true">
-                                <label class="form-check-label" for="isPermanent">
-                                    Archiviazione permanente (5x costo)
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="L'archiviazione permanente mantiene i dati indefinitamente su IPFS tramite Crust Network, ma costa 5 volte di più rispetto all'archiviazione temporanea"></i>
-                                </label>
-                            </div>
-                            
-                            <!-- Parametri personalizzati nascosti all'inizio -->
-                            <div id="customParamsSection" class="mb-4" style="display: none;">
+                                <!-- Custom Params (Advanced Options) -->
+                                <div class="accordion mb-4" id="advancedAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
+                                                <i class="bi bi-gear-fill me-2"></i> Opzioni avanzate
+                                            </button>
+                                        </h2>
+                                        <div id="collapseAdvanced" class="accordion-collapse collapse" data-bs-parent="#advancedAccordion">
+                                            <div class="accordion-body">
+                                                <div id="customParamsSection">
                                 <div class="alert alert-success mb-3 py-2">
                                     <strong>Costo calcolato ai prezzi attuali.</strong> Modifica i parametri per simulare scenari diversi.
                                 </div>
                                 
-                                <div class="row">
+                                                    <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="basePrice" class="form-label d-flex justify-content-between">
                                                 <span>
                                                     Prezzo base (µA)
                                                     <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                                       title="Costo fisso di base per iniziare l'archiviazione su Crust Network, pagato in microAlgos di Algorand"></i>
+                                                       title="Costo fisso di base per iniziare l'archiviazione su Crust Network, pagato in microAlgos di Algorand (valore dal contratto: <%= contractBasePrice %>µA)"></i>
                                                 </span>
-                                                <span id="basePriceValue"><%= defaultBasePrice %></span>
+                                                <span id="basePriceValue"><%= contractBasePrice %></span>
                                             </label>
-                                            <input type="range" class="form-range" id="basePrice" name="basePrice" 
-                                                min="100000" max="500000" step="10000" value="<%= defaultBasePrice %>">
+                                                                <input type="range" class="form-range custom-range" id="basePrice" name="basePrice" 
+                                                min="100000" max="5000000" step="100000" value="<%= contractBasePrice %>">
                                             <div class="d-flex justify-content-between small text-muted">
                                                 <span>0.1 Algos</span>
-                                                <span>0.5 Algos</span>
+                                                <span>5 Algos</span>
                                             </div>
                                         </div>
                                     </div>
@@ -91,208 +178,1240 @@
                                                 <span>
                                                     Prezzo per KB (µA)
                                                     <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                                       title="Costo in microAlgos per ogni KB di dati da pinnare su IPFS tramite Crust Network. Questo rappresenta il costo per mantenere disponibile il file su IPFS in modo decentralizzato"></i>
+                                                       title="Costo in microAlgos per ogni KB di dati da pinnare su IPFS tramite Crust Network (valore dal contratto: <%= contractBytePrice %>µA/KB)"></i>
                                                 </span>
-                                                <span id="bytePriceValue"><%= defaultBytePrice %></span>
+                                                <span id="bytePriceValue"><%= contractBytePrice %></span>
                                             </label>
-                                            <input type="range" class="form-range" id="bytePrice" name="bytePrice" 
-                                                min="50" max="200" step="5" value="<%= defaultBytePrice %>">
+                                                                <input type="range" class="form-range custom-range" id="bytePrice" name="bytePrice" 
+                                                min="50" max="2000" step="50" value="<%= contractBytePrice %>">
                                             <div class="d-flex justify-content-between small text-muted">
                                                 <span>50</span>
-                                                <span>200</span>
+                                                <span>2000</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Calcola costo</button>
+                                            </div>
+                                        </div>
+                                    </div>
                             </div>
                         </form>
                         
-                        <div id="error" class="mt-3 alert alert-danger py-2" style="display: none;">
+                            <!-- Error and Loading States -->
+                            <div id="error" class="alert alert-danger mt-4" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-circle-fill me-2"></i>
                             <p class="mb-0" id="errorMessage"></p>
+                                </div>
                         </div>
                         
-                        <div id="loading" class="text-center mt-3" style="display: none;">
+                            <div id="loading" class="text-center mt-4" style="display: none;">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Calcolo in corso...</span>
                             </div>
                             <p class="mt-2">Calcolo in corso...</p>
                         </div>
-                        
-                        <div class="mt-4 alert alert-secondary">
-                            <h5 class="mb-2">Fattori che influenzano il costo:</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <ul class="mb-0">
-                                        <li><strong>Dimensione file:</strong> Maggiore spazio su IPFS = costo più alto</li>
-                                        <li><strong>Tipo archiviazione:</strong> Temporanea o permanente (5x)</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="mb-0">
-                                        <li><strong>Prezzo base:</strong> Costo fisso iniziale su Crust</li>
-                                        <li><strong>Condizioni di mercato:</strong> Variazioni nella rete Crust</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Sidebar per i risultati -->
-            <div class="col-lg-4 col-xl-3">
-                <div id="results" class="card h-100 sidebar-results" style="display: none;">
-                    <div class="card-header bg-info text-white">
-                        <h4 class="mb-0">Risultato</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Dimensione:</span>
-                                <strong id="fileSize"></strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Archiviazione:</span>
-                                <strong id="storageType"></strong>
-                            </div>
+                <!-- Results Card -->
+                <div class="col-lg-4">
+                    <div id="results" class="card result-card" style="display: none;">
+                        <div class="card-header">
+                            <h2 class="card-title mb-0">Risultato</h2>
                         </div>
-                        
-                        <div class="price-section p-3 rounded mb-3">
-                            <div class="d-flex align-items-baseline justify-content-between">
-                                <h5 class="mb-0">
-                                    Costo totale <span class="small">(ALGO)</span>:
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Costo complessivo in ALGO per archiviare il file su IPFS tramite Crust Network"></i>
-                                </h5>
-                                <h4 class="mb-0" id="priceInAlgos"></h4>
+                        <div class="card-body">
+                            <!-- File Information -->
+                            <div class="result-file-info mb-4">
+                                <div class="file-icon">
+                                    <i class="bi bi-file-earmark"></i>
+                                </div>
+                                <div class="file-details">
+                                    <div class="file-size" id="fileSize" title="Dimensione del file che hai caricato"></div>
+                                </div>
                             </div>
-                            <div class="text-end text-muted small">
-                                <span id="priceInMicroAlgos"></span> µA
+                            
+                            <!-- Risultati di prezzo -->
+                            <div class="price-results-container mb-4">
+                                <div class="price-type-tabs mb-3">
+                                    <div class="tab-header">
+                                        <div class="tab active" data-tab="temporary" title="Archiviazione a breve termine, ideale per test e file temporanei">
+                                            <div class="tab-label">Temporaneo</div>
+                                        </div>
+                                        <div class="tab" data-tab="permanent" title="Archiviazione permanente a lungo termine, costo 5x rispetto al temporaneo">
+                                            <div class="tab-label">Permanente</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Temporary Storage Price -->
+                                <div class="price-panel active" id="temporaryPricePanel">
+                                    <div class="price-display mb-3">
+                                        <div class="algo-price">
+                                            <h3 id="priceInAlgos" class="mb-1" title="Costo totale in ALGO per archiviazione temporanea"></h3>
+                                            <div class="micro-algos" title="Importo espresso in microALGO (1 ALGO = 1.000.000 µA)">
+                                                <span id="priceInMicroAlgos"></span> µA
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Permanent Storage Price -->
+                                <div class="price-panel" id="permanentPricePanel">
+                                    <div class="price-display mb-3 permanent-price">
+                                        <div class="algo-price">
+                                            <h3 id="permanentAlgos" class="mb-1" title="Costo totale in ALGO per archiviazione permanente"></h3>
+                                            <div class="micro-algos" title="Importo espresso in microALGO (1 ALGO = 1.000.000 µA)">
+                                                <span id="permanentPrice"></span> µA
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="onChainIndicator" class="chain-source" style="display: none;">
+                                    <i class="bi bi-shield-check"></i> Parametri ufficiali Crust Mainnet
+                                </div>
                             </div>
-                            <div id="crustEquivalent" class="mt-2 text-end" style="display: none">
-                                <span class="badge bg-info">Equivalente: <span id="equivalentCRUST"></span> CRUST</span>
-                                <small class="d-block">Basato sui prezzi di mercato attuali</small>
+                            
+                            <!-- Price Equivalents -->
+                            <div class="equivalents-container mb-4">
+                                <h3 class="section-title"><i class="bi bi-currency-exchange me-2"></i>Equivalenti</h3>
+                                <div class="equiv-grid">
+                                    <div class="equiv-item">
+                                        <div class="equiv-label">
+                                            <i class="bi bi-hdd-network"></i> CRUST:
+                                        </div>
+                                        <div class="equiv-value" id="equivalentCRUST" title="Valore equivalente in token CRUST, basato sul tasso di cambio attuale">0.000000</div>
+                                    </div>
+                                    <div class="equiv-item">
+                                        <div class="equiv-label">
+                                            <i class="bi bi-currency-dollar"></i> USD:
+                                        </div>
+                                        <div class="equiv-value" id="equivalentUSD" title="Valore equivalente in dollari USA, basato sul tasso di cambio attuale">$0.00</div>
+                                    </div>
+                                    <div class="equiv-item">
+                                        <div class="equiv-label">
+                                            <i class="bi bi-currency-euro"></i> EUR:
+                                        </div>
+                                        <div class="equiv-value" id="equivalentEUR" title="Valore equivalente in euro, basato sul tasso di cambio attuale">€0.00</div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <h6 class="mt-3 mb-2">Dettaglio calcolo</h6>
-                        <div class="calc-details">
-                            <div class="d-flex justify-content-between">
-                                <span>
-                                    KB totali:
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Dimensione del file arrotondata per eccesso al KB per calcolare lo spazio su IPFS"></i>
-                                </span>
-                                <strong id="sizeInKB"></strong>
+                            
+                            <!-- Price Calculation Breakdown -->
+                            <div class="calculation-breakdown">
+                                <h3 class="section-title" title="Dettaglio dei componenti utilizzati per calcolare il prezzo totale"><i class="bi bi-list-columns"></i> Dettagli calcolo</h3>
+                                
+                                <div class="calc-row">
+                                    <div class="calc-label" title="Dimensione del file convertita in KB">Dimensione:</div>
+                                    <div class="calc-value" id="sizeInKB" title="Dimensione del file espressa in kilobyte (KB)"></div>
+                                </div>
+                                
+                                <div class="calc-row">
+                                    <div class="calc-label" title="Costo fisso base per iniziare l'archiviazione">Prezzo base:</div>
+                                    <div class="calc-value" id="basePriceResult" title="Costo fisso di base per iniziare l'archiviazione, indipendente dalla dimensione del file"></div>
+                                </div>
+                                
+                                <div class="calc-row">
+                                    <div class="calc-label" title="Costo variabile in base alla dimensione del file">Costo dimensione:</div>
+                                    <div class="calc-value" id="byteCost" title="Costo calcolato moltiplicando la dimensione del file per il costo per KB"></div>
+                                </div>
+                                
+                                <div class="formula-row">
+                                    <div class="formula" title="Formula utilizzata per calcolare il costo totale">Base + (KB × Costo/KB)</div>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span>
-                                    Prezzo base:
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Costo fisso iniziale per usare Crust Network, pagato in microAlgos"></i>
-                                </span>
-                                <strong><span id="basePriceResult"></span> µA</strong>
+
+                            <!-- Token Rate Indicators -->
+                            <div class="token-rates mt-3">
+                                <div id="algoRateIndicator" class="rate-indicator" title="Prezzo attuale di Algorand in dollari USA"></div>
+                                <div id="crustRateIndicator" class="rate-indicator" title="Prezzo attuale di Crust Network in dollari USA"></div>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span>
-                                    Costo KB:
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Costo aggiuntivo basato sulla dimensione del file su IPFS (KB × prezzo per KB)"></i>
-                                </span>
-                                <strong><span id="byteCost"></span> µA</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>
-                                    Subtotale:
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Somma del prezzo base e del costo per KB prima dell'applicazione del moltiplicatore di durata"></i>
-                                </span>
-                                <strong><span id="baseTotal"></span> µA</strong>
-                            </div>
-                            <div class="d-flex justify-content-between fw-bold">
-                                <span>
-                                    Moltiplicatore:
-                                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Fattore moltiplicativo: 5x per pinnaggio permanente su IPFS, 1x per temporaneo"></i>
-                                </span>
-                                <span id="permanentMultiplier">1</span>x
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">µA = microAlgos (1 ALGO = 1,000,000 µA) - Pagamento tramite Algorand per servizi Crust Network su IPFS</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Footer -->
+        <footer class="footer mt-5">
+            <div class="container py-3">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0">© 2025 Crust x Algorand Storage Solution</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="https://crust.network" target="_blank" class="me-3">Crust Network</a>
+                        <a href="https://algorand.com" target="_blank">Algorand</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
+        let countdownValue = 120;
+        let selectedFile = null; // Variabile globale per tenere traccia del file selezionato
+        let lastCalculationData = null; // Variabile globale per memorizzare i dati dell'ultimo calcolo
+        
+        // Riferimenti corretti agli elementi DOM
+        const algoRateElement = document.getElementById('algoRateIndicator');
+        const crustRateElement = document.getElementById('crustRateIndicator');
+        
+        console.log('Inizializzazione script: elementi DOM iniziali', {
+            bodyLoaded: !!document.body,
+            algoRateIndicatorExists: !!document.getElementById('algoRateIndicator'),
+            crustRateIndicatorExists: !!document.getElementById('crustRateIndicator')
+        });
+        
+        // Funzione per formattare la dimensione file (spostata a livello globale)
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const units = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + units[i];
+        }
+        
+        // Funzione per evidenziare visivamente i parametri quando cambiano
+        function highlightElement(element) {
+            if (!element) return;
+            
+            // Rimuovi l'evidenziazione precedente
+            element.classList.remove('highlight-change');
+            
+            // Forza un reflow del DOM per assicurarsi che l'animazione venga riapplicata
+            void element.offsetWidth;
+            
+            // Aggiungi la classe per l'animazione
+            element.classList.add('highlight-change');
+            
+            // Rimuovi la classe dopo l'animazione
+            setTimeout(() => {
+                element.classList.remove('highlight-change');
+            }, 1500);
+        }
+        
         // Inizializza i tooltip di Bootstrap
         document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
+            // Verifica che bootstrap sia disponibile
+            if (typeof bootstrap !== 'undefined') {
+                console.log('Bootstrap disponibile, inizializzazione tooltip...');
+                // Inizializza tutti i tooltip nella pagina (inclusi gli elementi con attributo 'title')
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            } else {
+                console.error('Bootstrap non disponibile, impossibile inizializzare i tooltip');
+            }
+        });
+                  
+        // Inizializza i tooltip usando sia Bootstrap che Tippy.js per maggiore compatibilità
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verifica che Tippy.js sia disponibile
+            if (typeof tippy !== 'undefined') {
+                console.log('Tippy.js disponibile, inizializzazione tooltip...');
+                // Inizializza tutti i tooltip nella pagina (elementi con attributo 'title')
+                tippy('[title]', {
+                    content: (reference) => reference.getAttribute('title'),
+                    onShow(instance) {
+                        // Salva il titolo originale così che possa essere ripristinato
+                        instance._originalTitle = instance.reference.getAttribute('title');
+                        // Rimuovi l'attributo 'title' per evitare tooltip nativi del browser
+                        instance.reference.removeAttribute('title');
+                    },
+                    onHidden(instance) {
+                        // Ripristina l'attributo 'title' quando il tooltip è nascosto
+                        instance.reference.setAttribute('title', instance._originalTitle);
+                    }
+                });
+            } else {
+                console.error('Tippy.js non disponibile, tentativo di usare Bootstrap');
+                // Fallback a Bootstrap se Tippy.js non è disponibile
+                if (typeof bootstrap !== 'undefined') {
+                    console.log('Bootstrap disponibile, inizializzazione tooltip...');
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+                    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
+                } else {
+                    console.error('Nessuna libreria di tooltip disponibile');
+                }
+            }
+            
+            // Gestione degli slider per i prezzi personalizzati
+            const basePriceSlider = document.getElementById('basePrice');
+            const bytePriceSlider = document.getElementById('bytePrice');
+            const basePriceValueDisplay = document.getElementById('basePriceValue');
+            const bytePriceValueDisplay = document.getElementById('bytePriceValue');
+            
+            // Aggiorna display quando gli slider vengono spostati
+            if (basePriceSlider && basePriceValueDisplay) {
+                basePriceSlider.addEventListener('input', function() {
+                    basePriceValueDisplay.textContent = parseInt(this.value).toLocaleString();
+                    // Evidenzia la modifica per mostrare all'utente che sta usando un valore personalizzato
+                    highlightElement(basePriceValueDisplay);
+                });
+            }
+            
+            if (bytePriceSlider && bytePriceValueDisplay) {
+                bytePriceSlider.addEventListener('input', function() {
+                    bytePriceValueDisplay.textContent = parseInt(this.value).toLocaleString();
+                    // Evidenzia la modifica per mostrare all'utente che sta usando un valore personalizzato
+                    highlightElement(bytePriceValueDisplay);
+                });
+            }
             
             // Aggiornamento automatico dei prezzi dei token
-            const algoPriceElement = document.getElementById('algoPrice');
-            const crustPriceElement = document.getElementById('crustPrice');
+            const countdownElement = document.getElementById('priceUpdateCountdown');
             
-            if (algoPriceElement && crustPriceElement) {
-                // Implementa il countdown per l'aggiornamento
-                const countdownElement = document.getElementById('priceUpdateCountdown');
-                let countdownValue = 120; // 2 minuti in secondi
-                
+            if (countdownElement) {
                 // Aggiorna il countdown ogni secondo
                 const countdownInterval = setInterval(() => {
                     countdownValue--;
-                    if (countdownValue <= 0) {
-                        countdownValue = 120; // Reset dopo l'aggiornamento
-                    }
                     countdownElement.textContent = countdownValue;
+                    if (countdownValue <= 0) {
+                        updateTokenPrices(); // Aggiorna i prezzi quando il countdown arriva a zero
+                        countdownValue = 120; // Reset del countdown
+                    }
                 }, 1000);
                 
-                // Funzione per aggiornare i prezzi
-                async function updateTokenPrices() {
-                    try {
-                        const response = await fetch('/api/token-prices');
-                        const data = await response.json();
+                // Aggiorna subito i prezzi all'avvio
+                updateTokenPrices();
+            }
+            
+            // Configura il pulsante di refresh per l'aggiornamento manuale
+            const refreshRatesBtn = document.getElementById('refreshRatesBtn');
+            if (refreshRatesBtn) {
+                refreshRatesBtn.addEventListener('click', function() {
+                    // Reset del contatore
+                    countdownValue = 120;
+                    
+                    // Aggiorna il display del contatore
+                    const countdownElement = document.getElementById('priceUpdateCountdown');
+                    if (countdownElement) {
+                        countdownElement.textContent = countdownValue;
+                    }
+                    
+                    // Aggiorna i prezzi
+                    updateTokenPrices();
+                });
+            }
+            
+            // Configura il dropzone per il caricamento file
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('file');
+            const selectedFileElement = document.querySelector('.selected-file');
+            const fileName = document.querySelector('.file-name');
+            const fileSize = document.querySelector('.file-size');
+            const uploadContent = document.querySelector('.upload-content');
+            
+            fileInput.addEventListener('change', function() {
+                console.log('File input change event triggered', this.files);
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    selectedFile = file; // Salva il file nella variabile globale
+                    
+                    console.log('File selezionato:', file.name, file.size);
+                    
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatFileSize(file.size);
+                    selectedFileElement.style.display = 'flex';
+                    uploadContent.classList.add('has-file');
+                } else {
+                    selectedFile = null;
+                    selectedFileElement.style.display = 'none';
+                    uploadContent.classList.remove('has-file');
+                }
+            });
+            
+            dropzone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            dropzone.addEventListener('dragleave', function() {
+                this.classList.remove('dragover');
+            });
+            
+            dropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    // Imposta i file del fileInput
+                    fileInput.files = e.dataTransfer.files;
+                    selectedFile = e.dataTransfer.files[0]; // Salva il file nella variabile globale
+                    
+                    // Aggiorna l'interfaccia utente
+                    const file = e.dataTransfer.files[0];
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatFileSize(file.size);
+                    selectedFileElement.style.display = 'flex';
+                    uploadContent.classList.add('has-file');
+                    
+                    console.log('File droppato:', file.name, file.size);
+                    
+                    // Genera l'evento change ma potrebbe non essere necessario
+                    const event = new Event('change');
+                    fileInput.dispatchEvent(event);
+                }
+            });
+            
+            // Aggiungi event listener per il pulsante "Calcola costo"
+            const calculateBtn = document.getElementById('calculateBtn');
+            
+            if (calculateBtn) {
+                calculateBtn.addEventListener('click', function() {
+                    // L'utente ha cliccato su Calcola costo
+                    console.log('Pulsante Calcola costo cliccato');
+                    console.log('Stato selectedFile:', selectedFile ? 'File selezionato' : 'Nessun file');
+                    
+                    // Verifica se è stato selezionato un file
+                    if (!selectedFile) {
+                        // Mostra un messaggio di errore
+                        const errorDiv = document.getElementById('error');
+                        const errorMessage = document.getElementById('errorMessage');
                         
-                        if (data.success) {
-                            algoPriceElement.textContent = data.algoPrice.toFixed(4);
-                            crustPriceElement.textContent = data.crustPrice.toFixed(4);
-                            countdownValue = 120; // Reset countdown
+                        if (errorDiv && errorMessage) {
+                            errorMessage.textContent = 'Seleziona un file per calcolare il costo di archiviazione.';
+                            errorDiv.style.display = 'block';
                             
-                            // Aggiorna anche i calcoli di equivalenza se sono visibili
-                            const crustEquivalentDiv = document.getElementById('crustEquivalent');
-                            if (crustEquivalentDiv && crustEquivalentDiv.style.display !== 'none') {
-                                // Estrai il valore numerico da priceInAlgos rimuovendo "ALGO" e convertendo in numero
-                                const priceInAlgosText = document.getElementById('priceInAlgos').textContent;
-                                const priceMatch = priceInAlgosText.match(/([0-9,.]+)/);
-                                const priceInAlgos = priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : 0;
+                            // Nascondi l'errore dopo 3 secondi
+                            setTimeout(() => {
+                                errorDiv.style.display = 'none';
+                            }, 3000);
+                        }
+                        return;
+                    }
+                    
+                    // Nascondi eventuali errori precedenti
+                    const errorDiv = document.getElementById('error');
+                    if (errorDiv) {
+                        errorDiv.style.display = 'none';
+                    }
+                    
+                    // Calcola il prezzo direttamente utilizzando selectedFile
+                    calculatePrice();
+                });
+            }
+            
+            // Inizializza immediatamente i riferimenti ai pannelli e alle tab
+            initializeTabs();
+        });
+                
+        // Funzione per inizializzare le tab
+        function initializeTabs() {
+            // Gestione delle schede nella visualizzazione risultati
+            const tabs = document.querySelectorAll('.tab');
+            if (tabs.length > 0) {
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        // Rimuove la classe active da tutte le schede
+                        tabs.forEach(t => t.classList.remove('active'));
+                        // Aggiunge la classe active alla scheda cliccata
+                        this.classList.add('active');
+                        
+                        // Ottiene il tipo di scheda (temporary o permanent)
+                        const tabType = this.getAttribute('data-tab');
+                        
+                        // Nasconde tutti i pannelli di prezzo
+                        const pricePanels = document.querySelectorAll('.price-panel');
+                        pricePanels.forEach(panel => {
+                            panel.classList.remove('active');
+                        });
+                        
+                        // Mostra il pannello corrispondente alla scheda attiva
+                        const activePanel = document.getElementById(tabType + 'PricePanel');
+                        if (activePanel) {
+                            activePanel.classList.add('active');
+                            console.log('Pannello attivato:', tabType);
+                        } else {
+                            console.error('Pannello non trovato per il tipo:', tabType);
+                        }
+                        
+                        // Aggiorna gli equivalenti in base alla tab selezionata
+                        updateEquivalents(tabType);
+                    });
+                });
+            } else {
+                console.warn('Nessuna tab trovata per la gestione dei risultati');
+            }
+        }
+        
+        // Funzione per aggiornare gli equivalenti in USD ed EUR
+        function updateEquivalents(activeTab = 'temporary') {
+            const algoRate = document.getElementById('algoRateIndicator');
+            const resultsDiv = document.getElementById('results');
+            
+            // Verifica che algoRate esista e che contenga un valore numerico
+            if (resultsDiv && resultsDiv.style.display === 'block' && algoRate) {
+                // Estrae il valore numerico del prezzo ALGO
+                const algoText = algoRate.textContent;
+                const algoPriceMatch = algoText.match(/\$([0-9,.]+)/);
+                
+                if (algoPriceMatch) {
+                    const algoPrice = parseFloat(algoPriceMatch[1]);
+                    
+                    // Determina quale prezzo in ALGO usare in base alla scheda attiva
+                    let priceElement, priceInAlgos;
+                    if (activeTab === 'permanent') {
+                        priceElement = document.getElementById('permanentAlgos');
+                    } else {
+                        priceElement = document.getElementById('priceInAlgos');
+                    }
+                    
+                    if (priceElement) {
+                        const priceText = priceElement.textContent;
+                        const priceMatch = priceText.match(/([0-9,.]+)/);
+                        
+                        if (priceMatch && algoPrice > 0) {
+                            priceInAlgos = parseFloat(priceMatch[1].replace(/,/g, ''));
+                            const usdValue = priceInAlgos * algoPrice;
+                            
+                            // Tasso di conversione EUR/USD (approssimativo)
+                            const eurUsdRate = 0.92;
+                            const eurValue = usdValue * eurUsdRate;
+                            
+                            document.getElementById('equivalentUSD').textContent = '$' + usdValue.toFixed(2);
+                            document.getElementById('equivalentEUR').textContent = '€' + eurValue.toFixed(2);
+                            
+                            // Aggiorna anche l'equivalente CRUST
+                            const crustRate = document.getElementById('crustRateIndicator');
+                            if (crustRate) {
+                                const crustText = crustRate.textContent;
+                                const crustPriceMatch = crustText.match(/\$([0-9,.]+)/);
                                 
-                                if (priceInAlgos > 0) {
-                                    const priceInUSD = priceInAlgos * data.algoPrice;
-                                    const equivalentCRUST = priceInUSD / data.crustPrice;
-                                    document.getElementById('equivalentCRUST').textContent = equivalentCRUST.toFixed(6);
+                                if (crustPriceMatch) {
+                                    const crustPrice = parseFloat(crustPriceMatch[1]);
+                                    if (crustPrice > 0) {
+                                        const crustAmount = usdValue / crustPrice;
+                                        document.getElementById('equivalentCRUST').textContent = crustAmount.toFixed(6);
+                                    }
                                 }
                             }
                         }
-                    } catch (error) {
-                        console.error('Error fetching token prices:', error);
+                    }
+                }
+            }
+            
+            // Aggiorna i dettagli di calcolo in base alla tab attiva
+            if (lastCalculationData) {
+                const sizeInKBElement = document.getElementById('sizeInKB');
+                const basePriceResultElement = document.getElementById('basePriceResult');
+                const byteCostElement = document.getElementById('byteCost');
+                
+                // La dimensione non cambia tra temporaneo e permanente
+                if (sizeInKBElement) {
+                    sizeInKBElement.textContent = `${lastCalculationData.sizeInKB.toLocaleString()} KB`;
+                }
+                
+                if (activeTab === 'permanent') {
+                    // Mostra i dati per lo storage permanente (5x)
+                    if (basePriceResultElement) {
+                        const permBasePrice = lastCalculationData.permanentBasePrice || lastCalculationData.basePrice * 5;
+                        basePriceResultElement.textContent = `${permBasePrice.toLocaleString()} µA`;
+                        highlightElement(basePriceResultElement);
+                    }
+                    
+                    if (byteCostElement) {
+                        const permByteCost = lastCalculationData.permanentByteCost || lastCalculationData.byteCost * 5;
+                        byteCostElement.textContent = `${permByteCost.toLocaleString()} µA`;
+                        highlightElement(byteCostElement);
+                    }
+                } else {
+                    // Mostra i dati per lo storage temporaneo (1x)
+                    if (basePriceResultElement) {
+                        basePriceResultElement.textContent = `${lastCalculationData.basePrice.toLocaleString()} µA`;
+                        highlightElement(basePriceResultElement);
+                    }
+                    
+                    if (byteCostElement) {
+                        byteCostElement.textContent = `${lastCalculationData.byteCost.toLocaleString()} µA`;
+                        highlightElement(byteCostElement);
+                    }
+                }
+            }
+        }
+
+        // Function to update token prices from the server
+        function updateTokenPrices() {
+            // Get current permanent setting status
+            // Ora non abbiamo più bisogno di usare isPermanent come toggle
+            const isPermanent = false; // Sempre false perché mostriamo entrambi sempre
+            
+            // Mostra indicatore loading per i prezzi dei token
+            const algoRateElement = document.getElementById('algoRateIndicator');
+            const crustRateElement = document.getElementById('crustRateIndicator');
+            
+            if (algoRateElement) {
+                algoRateElement.innerHTML = '<small class="loading">Caricamento...</small>';
+            }
+            if (crustRateElement) {
+                crustRateElement.innerHTML = '<small class="loading">Caricamento...</small>';
+            }
+            
+            // Mostra indicatore loading per i parametri di prezzo
+            document.querySelectorAll('.pricing-params-container .param-value').forEach(el => {
+                el.classList.add('loading');
+            });
+            
+            console.log('Inizio richiesta API per prezzi token...');
+            console.log('Inizio richiesta API per prezzi token...');
+            
+            // Fetch token prices from API
+            fetch(`/api/token-prices?isPermanent=${isPermanent}`)
+                .then(response => {
+                    console.log('Risposta API ricevuta:', response.status, response.statusText);
+                    if (!response.ok) {
+                        throw new Error(`Errore nella risposta API: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Token prices update received:', data);
+                    
+                    // Verifica se i prezzi sono disponibili
+                    if (data.pricesNotAvailable) {
+                        // Mostra un alert per informare l'utente
+                        const errorDiv = document.getElementById('error');
+                        const errorMessage = document.getElementById('errorMessage');
+                        
+                        if (errorDiv && errorMessage) {
+                            errorMessage.textContent = 'I prezzi dei token non sono attualmente disponibili. Riprova più tardi.';
+                            errorDiv.style.display = 'block';
+                            
+                            // Nascondi l'errore dopo 5 secondi
+                            setTimeout(() => {
+                                errorDiv.style.display = 'none';
+                            }, 5000);
+                        }
+                        
+                        // Rimuovi indicatore loading
+                        document.querySelectorAll('.pricing-params-container .param-value').forEach(el => {
+                            el.classList.remove('loading');
+                        });
+                        
+                        // Aggiorna gli indicatori di prezzo con "N/D"
+                        if (algoRateElement) algoRateElement.textContent = 'ALGO: N/D';
+                        if (crustRateElement) crustRateElement.textContent = 'CRUST: N/D';
+                        
+                        return; // Esci dalla funzione
+                    }
+                    
+                    // Verifica che i prezzi esistano e siano maggiori di zero
+                    const algoPrice = data.algoPrice || 0;
+                    const crustPrice = data.crustPrice || 0;
+                    
+                    console.log(`Prezzi token ricevuti: ALGO=$${algoPrice}, CRUST=$${crustPrice}`, {
+                        algoPrice: data.algoPrice,
+                        crustPrice: data.crustPrice,
+                        algoRateElementExists: !!algoRateElement,
+                        crustRateElementExists: !!crustRateElement,
+                        isPricesNotAvailable: !!data.pricesNotAvailable,
+                        isDataValid: !!data,
+                        dataKeys: Object.keys(data)
+                    });
+                    
+                    // Update ALGO price
+                    if (algoRateElement) {
+                        console.log('Aggiornamento elemento algoRateElement con:', algoPrice);
+                        try {
+                            // Rimuovi qualsiasi contenuto precedente
+                            while (algoRateElement.firstChild) {
+                                algoRateElement.removeChild(algoRateElement.firstChild);
+                            }
+                            // Inserisci il nuovo testo
+                            algoRateElement.textContent = `ALGO: $${algoPrice.toFixed(4)}`;
+                            highlightElement(algoRateElement);
+                        } catch (err) {
+                            console.error('Errore durante aggiornamento algoRateElement:', err);
+                        }
+                    } else {
+                        console.error('algoRateElement non trovato nel DOM');
+                    }
+                    
+                    // Update CRUST price
+                    if (crustRateElement) {
+                        console.log('Aggiornamento elemento crustRateElement con:', crustPrice);
+                        try {
+                            // Rimuovi qualsiasi contenuto precedente
+                            while (crustRateElement.firstChild) {
+                                crustRateElement.removeChild(crustRateElement.firstChild);
+                            }
+                            // Inserisci il nuovo testo
+                            crustRateElement.textContent = `CRUST: $${crustPrice.toFixed(4)}`;
+                            highlightElement(crustRateElement);
+                        } catch (err) {
+                            console.error('Errore durante aggiornamento crustRateElement:', err);
+                        }
+                    } else {
+                        console.error('crustRateElement non trovato nel DOM');
+                    }
+                    
+                    // Aggiorna i prezzi temporanei e permanenti
+                    updatePriceDisplays(data, false);
+                    
+                    // Aggiorna gli slider con i valori dal contratto
+                    updateParameterSliders(data);
+                    
+                    // Mostra indicatore on-chain se i prezzi sono dal contratto reale
+                    const onChainIndicator = document.getElementById('onChainIndicator');
+                    if (onChainIndicator) {
+                        onChainIndicator.style.display = data.fromRealContract ? 'inline-flex' : 'none';
+                    }
+                    
+                    // Rimuovi indicatore loading
+                    document.querySelectorAll('.pricing-params-container .param-value').forEach(el => {
+                        el.classList.remove('loading');
+                    });
+                    
+                    // Aggiorna gli equivalenti se il pannello risultati è visibile
+                    updateEquivalents();
+                })
+                .catch(function(error) {
+                    console.error('Errore durante il recupero dei prezzi dei token:', error);
+                    
+                    // Rimuovi gli indicatori di caricamento
+                    if (algoRateElement) {
+                        algoRateElement.textContent = 'ALGO: Errore';
+                    }
+                    if (crustRateElement) {
+                        crustRateElement.textContent = 'CRUST: Errore';
+                    }
+                    
+                    // Mostra un alert per informare l'utente
+                    const errorDiv = document.getElementById('error');
+                    const errorMessage = document.getElementById('errorMessage');
+                    
+                    if (errorDiv && errorMessage) {
+                        errorMessage.textContent = 'Errore nel caricamento dei prezzi dei token. Riprova più tardi.';
+                        errorDiv.style.display = 'block';
+                        
+                        // Nascondi l'errore dopo 5 secondi
+                        setTimeout(() => {
+                            errorDiv.style.display = 'none';
+                        }, 5000);
+                    }
+                    
+                    // Rimuovi indicatore loading dai parametri di prezzo
+                    document.querySelectorAll('.pricing-params-container .param-value').forEach(el => {
+                        el.classList.remove('loading');
+                    });
+                });
+        }
+        
+        // Funzione aggiornata e semplificata per la richiesta e visualizzazione dei prezzi token
+        function updateTokenPricesNew() {
+            console.log('Aggiornamento prezzi token con nuova funzione');
+            
+            // Ottieni riferimenti freschi agli elementi DOM 
+            // per evitare problemi con riferimenti obsoleti
+            const algoElement = document.getElementById('algoRateIndicator');
+            const crustElement = document.getElementById('crustRateIndicator');
+            
+            // Mostra stato di caricamento
+            if (algoElement) algoElement.innerHTML = '<small class="loading">Caricamento...</small>';
+            if (crustElement) crustElement.innerHTML = '<small class="loading">Caricamento...</small>';
+            
+            // Mostra stato di caricamento per i parametri
+            document.querySelectorAll('.param-value').forEach(el => {
+                el.classList.add('loading');
+            });
+            
+            // Effettua la richiesta API
+            fetch('/api/token-prices?isPermanent=false')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Errore server: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Dati ricevuti:', data);
+                    
+                    // In caso di successo, aggiorna tutti gli elementi DOM
+                    // Aggiorna i prezzi dei token
+                    let algoPrice = data.algoPrice || 0;
+                    let crustPrice = data.crustPrice || 0;
+                    
+                    // Aggiorna i campi ALGO e CRUST nella UI
+                    document.querySelectorAll('#algoRateIndicator').forEach(el => {
+                        el.innerHTML = `ALGO: $${algoPrice.toFixed(4)}`;
+                        highlightElement(el);
+                    });
+                    
+                    document.querySelectorAll('#crustRateIndicator').forEach(el => {
+                        el.innerHTML = `CRUST: $${crustPrice.toFixed(4)}`;
+                        highlightElement(el);
+                    });
+                    
+                    // Aggiorna i parametri di prezzo
+                    document.querySelectorAll('#tempBasePriceDisplay').forEach(el => {
+                        el.innerHTML = `${(data.temporaryBasePrice || 0).toLocaleString()} µA`;
+                        highlightElement(el);
+                    });
+                    
+                    document.querySelectorAll('#tempKbPriceDisplay').forEach(el => {
+                        el.innerHTML = `${(data.temporaryKBPrice || 0).toLocaleString()} µA`;
+                        highlightElement(el);
+                    });
+                    
+                    document.querySelectorAll('#temp1KbPriceDisplay').forEach(el => {
+                        el.innerHTML = `${(data.temporaryPrice || 0).toLocaleString()} µA`;
+                        highlightElement(el);
+                    });
+                    
+                    document.querySelectorAll('#permBasePriceDisplay').forEach(el => {
+                        el.innerHTML = `${(data.permanentBasePrice || 0).toLocaleString()} µA`;
+                        highlightElement(el);
+                    });
+                    
+                    document.querySelectorAll('#permKbPriceDisplay').forEach(el => {
+                        el.innerHTML = `${(data.permanentKBPrice || 0).toLocaleString()} µA`;
+                        highlightElement(el);
+                    });
+                    
+                    document.querySelectorAll('#perm1KbPriceDisplay').forEach(el => {
+                        el.innerHTML = `${(data.permanentPrice || 0).toLocaleString()} µA`;
+                        highlightElement(el);
+                    });
+                    
+                    // Rimuovi lo stato di caricamento da tutti gli elementi
+                    document.querySelectorAll('.loading').forEach(el => {
+                        el.classList.remove('loading');
+                    });
+                    
+                    // Aggiorna l'indicatore on-chain
+                    const onChainIndicator = document.getElementById('onChainIndicator');
+                    if (onChainIndicator) {
+                        onChainIndicator.style.display = data.fromRealContract ? 'inline-flex' : 'none';
+                    }
+                    
+                    // Aggiorna gli equivalenti
+                    updateEquivalents();
+                })
+                .catch(error => {
+                    console.error('Errore nell\'aggiornamento dei prezzi:', error);
+                    
+                    // In caso di errore, mostra un messaggio appropriato
+                    document.querySelectorAll('#algoRateIndicator').forEach(el => {
+                        el.innerHTML = 'ALGO: Errore';
+                    });
+                    
+                    document.querySelectorAll('#crustRateIndicator').forEach(el => {
+                        el.innerHTML = 'CRUST: Errore';
+                    });
+                    
+                    // Rimuovi lo stato di caricamento
+                    document.querySelectorAll('.loading').forEach(el => {
+                        el.classList.remove('loading');
+                    });
+                    
+                    // Mostra un messaggio di errore
+                    const errorDiv = document.getElementById('error');
+                    const errorMessage = document.getElementById('errorMessage');
+                    if (errorDiv && errorMessage) {
+                        errorMessage.textContent = 'Errore nel caricamento dei prezzi dei token. Riprova più tardi.';
+                        errorDiv.style.display = 'block';
+                        setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
+                    }
+                });
+        }
+        
+        // Funzione per aggiornare i display dei prezzi
+        function updatePriceDisplays(data, forceUpdate) {
+            console.log("Updating price displays with data:", data);
+            
+            // Verifica se i prezzi non sono disponibili
+            if (data.pricesNotAvailable) {
+                // Aggiorna i display per mostrare "N/D" (Non Disponibile)
+                updateElementWithHighlight('tempBasePriceDisplay', "N/D", forceUpdate);
+                updateElementWithHighlight('tempKbPriceDisplay', "N/D", forceUpdate);
+                updateElementWithHighlight('temp1KbPriceDisplay', "N/D", forceUpdate);
+                
+                updateElementWithHighlight('permBasePriceDisplay', "N/D", forceUpdate);
+                updateElementWithHighlight('permKbPriceDisplay', "N/D", forceUpdate);
+                updateElementWithHighlight('perm1KbPriceDisplay', "N/D", forceUpdate);
+                
+                // Aggiorna anche gli indicatori dei tassi di cambio
+                const algoRateElement = document.getElementById('algoRateIndicator');
+                if (algoRateElement) {
+                    algoRateElement.textContent = `ALGO: N/D`;
+                }
+                
+                const crustRateElement = document.getElementById('crustRateIndicator');
+                if (crustRateElement) {
+                    crustRateElement.textContent = `CRUST: N/D`;
+                }
+                
+                return;
+            }
+            
+            // Verifichiamo quali proprietà esistono nei dati
+            // È possibile che i dati abbiano nomi diversi da quelli che ci aspettiamo
+            
+            // Per temporaneo: basePrice, bytePrice, price1KB o priceForOneKB
+            const tempBasePrice = data.basePrice || data.temporaryBasePrice || 200000;
+            const tempKBPrice = data.bytePrice || data.temporaryKBPrice || 125;
+            const temp1KBPrice = data.price1KB || data.priceForOneKB || data.temporaryPrice || 200125;
+            
+            // Per permanente: moltiplichiamo x5 se non forniti direttamente
+            const permBasePrice = data.permanentBasePrice || data.permBasePrice || (tempBasePrice * 5);
+            const permKBPrice = data.permanentKBPrice || data.permBytePrice || (tempKBPrice * 5);
+            const perm1KBPrice = data.permanentPrice || data.permPrice1KB || (temp1KBPrice * 5);
+            
+            // Aggiorna i valori nel DOM
+            // Prezzi temporanei
+            updateElementWithHighlight('tempBasePriceDisplay', tempBasePrice, forceUpdate);
+            updateElementWithHighlight('tempKbPriceDisplay', tempKBPrice, forceUpdate);
+            updateElementWithHighlight('temp1KbPriceDisplay', temp1KBPrice, forceUpdate);
+            
+            // Prezzi permanenti
+            updateElementWithHighlight('permBasePriceDisplay', permBasePrice, forceUpdate);
+            updateElementWithHighlight('permKbPriceDisplay', permKBPrice, forceUpdate);
+            updateElementWithHighlight('perm1KbPriceDisplay', perm1KBPrice, forceUpdate);
+        }
+        
+        // Helper function to update element with highlight animation
+        function updateElementWithHighlight(elementId, value, forceUpdate = false) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const formattedValue = typeof value === 'number' 
+                ? `${value.toLocaleString()} µA` 
+                : value;
+            
+            const currentValue = element.textContent;
+            
+            // Aggiorna solo se il valore è cambiato o se forceUpdate è true
+            if (currentValue !== formattedValue || forceUpdate) {
+                element.textContent = formattedValue;
+                highlightElement(element);
+            }
+        }
+        
+        // Funzione per calcolare il prezzo ora mostra sempre entrambi i calcoli
+        function calculatePrice() {
+            // Utilizziamo la variabile globale selectedFile invece del file input
+            if (!selectedFile) {
+                console.error('Nessun file selezionato per il calcolo');
+                // Riprova a prendere il file direttamente dall'input come fallback
+                const fileInput = document.getElementById('file');
+                if (fileInput && fileInput.files && fileInput.files[0]) {
+                    console.log('Utilizzo il file dall\'input come fallback');
+                    selectedFile = fileInput.files[0];
+                } else {
+                    // Mostra un messaggio di errore
+                    const errorDiv = document.getElementById('error');
+                    const errorMessage = document.getElementById('errorMessage');
+                    if (errorDiv && errorMessage) {
+                        errorMessage.textContent = 'Seleziona un file per calcolare il costo di archiviazione.';
+                        errorDiv.style.display = 'block';
+                        setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+                    }
+                    return;
+                }
+            }
+
+            console.log('Calcolo prezzo per file:', selectedFile.name, selectedFile.size);
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            // Ottieni sempre i valori correnti degli slider
+            const basePriceInput = document.getElementById('basePrice');
+            const bytePriceInput = document.getElementById('bytePrice');
+            
+            // Ottieni anche i valori originali mostrati (come riferimento visivo)
+            const basePriceDisplay = document.getElementById('basePriceValue');
+            const bytePriceDisplay = document.getElementById('bytePriceValue');
+            
+            // Log i valori che stiamo inviando
+            console.log('Parametri personalizzati per il calcolo del prezzo:', {
+                basePrice: basePriceInput ? basePriceInput.value : 'non disponibile',
+                bytePrice: bytePriceInput ? bytePriceInput.value : 'non disponibile',
+                basePriceDisplay: basePriceDisplay ? basePriceDisplay.textContent : 'non disponibile',
+                bytePriceDisplay: bytePriceDisplay ? bytePriceDisplay.textContent : 'non disponibile'
+            });
+            
+            // Aggiungi sempre i parametri personalizzati (gli slider hanno sempre un valore)
+            if (basePriceInput) {
+                formData.append('basePrice', basePriceInput.value);
+            }
+            
+            if (bytePriceInput) {
+                formData.append('bytePrice', bytePriceInput.value);
+            }
+            
+            // Mostro entrambi i calcoli (temporaneo e permanente)
+            // invece di basarmi sul toggle ora rimosso
+            formData.append('isPermanent', 'false'); // Calcolo principale sempre temporaneo
+            formData.append('calculateBoth', 'true'); // Ma richiedi entrambi i prezzi
+            
+            // Nascondi eventuali errori precedenti
+            const errorDiv = document.getElementById('error');
+            if (errorDiv) {
+                    errorDiv.style.display = 'none';
+            }
+            
+            // Mostra l'indicatore di caricamento
+            const loadingDiv = document.getElementById('loading');
+            if (loadingDiv) {
+                    loadingDiv.style.display = 'block';
+            }
+            
+            // Nasconde eventuali risultati precedenti
+            const resultsDiv = document.getElementById('results');
+            if (resultsDiv) {
+                resultsDiv.style.display = 'none';
+            }
+            
+            console.log('Inizio chiamata API per calcolo prezzo con formData:', {
+                file: selectedFile.name,
+                fileSize: selectedFile.size,
+                isPermanent: false,
+                calculateBoth: true,
+                hasBasePrice: !!basePriceInput,
+                hasBytePrice: !!bytePriceInput
+            });
+            
+            // Invia la richiesta al server
+            fetch('/calculate-price', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Risposta ricevuta:', response.status, response.statusText);
+                // Verifica che la risposta sia ok
+                if (!response.ok) {
+                    throw new Error(`Errore nella risposta del server: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Dati ricevuti:', data);
+                
+                // Nascondi l'indicatore di caricamento
+                if (loadingDiv) {
+                        loadingDiv.style.display = 'none';
+                }
+            
+                if (data.error) {
+                    // Mostra l'errore
+                    if (errorDiv) {
+                        const errorMessageDiv = document.getElementById('errorMessage');
+                        if (errorMessageDiv) {
+                            errorMessageDiv.textContent = data.message || data.error;
+                        }
+                        errorDiv.style.display = 'block';
+                    }
+                    return;
+                }
+            
+                // Aggiorna i risultati
+                const resultsDiv = document.getElementById('results');
+                if (!resultsDiv) {
+                    console.error('Elemento risultati non trovato');
+                    return;
+                }
+            
+                // Mostra la card dei risultati
+                resultsDiv.style.display = 'block';
+                
+                // Aggiorna le informazioni sul file
+                const fileSizeElement = document.getElementById('fileSize');
+                if (fileSizeElement) {
+                    fileSizeElement.textContent = formatFileSize(data.fileSize);
+                }
+                
+                // Aggiorna il prezzo in Algos (temporaneo)
+                const priceInAlgosElement = document.getElementById('priceInAlgos');
+                if (priceInAlgosElement) {
+                    priceInAlgosElement.textContent = `${data.priceInAlgos.toLocaleString()} ALGO`;
+                    highlightElement(priceInAlgosElement);
+                }
+                
+                // Aggiorna il prezzo in microAlgos (temporaneo)
+                const priceInMicroAlgosElement = document.getElementById('priceInMicroAlgos');
+                if (priceInMicroAlgosElement) {
+                    priceInMicroAlgosElement.textContent = data.price.toLocaleString();
+                    highlightElement(priceInMicroAlgosElement);
+                }
+                
+                // Aggiorna il prezzo in Algos (permanente)
+                const permanentAlgosElement = document.getElementById('permanentAlgos');
+                if (permanentAlgosElement) {
+                    const permAlgos = data.permanentPriceInAlgos || (data.priceInAlgos * 5);
+                    permanentAlgosElement.textContent = `${permAlgos.toLocaleString()} ALGO`;
+                    highlightElement(permanentAlgosElement);
+                }
+                
+                // Aggiorna il prezzo in microAlgos (permanente)
+                const permanentPriceElement = document.getElementById('permanentPrice');
+                if (permanentPriceElement) {
+                    const permPrice = data.permanentPrice || (data.price * 5);
+                    permanentPriceElement.textContent = permPrice.toLocaleString();
+                    highlightElement(permanentPriceElement);
+                }
+                
+                // Salva i dati del calcolo nella variabile globale per poterli usare quando si cambia tab
+                lastCalculationData = {
+                    ...data,
+                    permanentBasePrice: data.permanentBasePrice || (data.basePrice * 5),
+                    permanentByteCost: data.permanentByteCost || (data.byteCost * 5)
+                };
+                
+                // Aggiorna i dettagli del calcolo
+                const sizeInKBElement = document.getElementById('sizeInKB');
+                if (sizeInKBElement) {
+                    sizeInKBElement.textContent = `${data.sizeInKB.toLocaleString()} KB`;
+                }
+                
+                const basePriceResultElement = document.getElementById('basePriceResult');
+                if (basePriceResultElement) {
+                    if (data.basePrice === "Contratto Mainnet") {
+                        basePriceResultElement.textContent = "Contratto Mainnet";
+                    } else {
+                        basePriceResultElement.textContent = `${data.basePrice.toLocaleString()} µA`;
                     }
                 }
                 
-                // Aggiorna ogni 2 minuti
-                setInterval(updateTokenPrices, 2 * 60 * 1000);
+                const byteCostElement = document.getElementById('byteCost');
+                if (byteCostElement) {
+                    if (data.byteCost === "Contratto Mainnet") {
+                        byteCostElement.textContent = "Contratto Mainnet";
+                    } else {
+                        byteCostElement.textContent = `${data.byteCost.toLocaleString()} µA`;
+                    }
+                }
+                
+                // Aggiorna gli indicatori dei rate di cambio
+                const algoRateIndicator = document.getElementById('algoRateIndicator');
+                if (algoRateIndicator) {
+                    algoRateIndicator.textContent = `ALGO: $${data.algoPrice.toFixed(4)}`;
+                }
+                
+                const crustRateIndicator = document.getElementById('crustRateIndicator');
+                if (crustRateIndicator) {
+                    crustRateIndicator.textContent = `CRUST: $${data.crustPrice.toFixed(4)}`;
+                }
+                
+                // Aggiorna l'indicatore on-chain
+                const onChainIndicator = document.getElementById('onChainIndicator');
+                if (onChainIndicator) {
+                    onChainIndicator.style.display = data.fromRealContract ? 'flex' : 'none';
+                }
+                
+                // Aggiorna gli equivalenti (default: temporary)
+                updateEquivalents('temporary');
+            })
+            .catch(error => {
+                console.error('Errore durante la chiamata API:', error);
+                
+                // Nascondi l'indicatore di caricamento
+                if (loadingDiv) {
+                    loadingDiv.style.display = 'none';
+                }
+                
+                // Mostra l'errore
+                if (errorDiv) {
+                    const errorMessageDiv = document.getElementById('errorMessage');
+                    if (errorMessageDiv) {
+                        // Migliora il messaggio d'errore per includere dettagli specifici
+                        const errorMsg = error.message || 'Si è verificato un errore durante il calcolo del prezzo.';
+                        errorMessageDiv.textContent = errorMsg;
+                        
+                        // Aggiungi dettagli specifici sulla dimensione del file se possibile
+                        if (selectedFile) {
+                            const fileSizeMB = selectedFile.size / (1024 * 1024);
+                            if (fileSizeMB > 10) {
+                                errorMessageDiv.textContent += ' Il file potrebbe essere troppo grande. Dimensione: ' + 
+                                    formatFileSize(selectedFile.size);
+                            }
+                        }
+                    }
+                    errorDiv.style.display = 'block';
+                    // Mantieni l'errore visibile più a lungo
+                    setTimeout(() => { errorDiv.style.display = 'none'; }, 8000);
+                }
+                
+                console.error('Dettagli errore durante il calcolo del prezzo:', error);
+            });
+        }
+
+        // Aggiorna gli input slider con i valori correnti dal contratto
+        function updateParameterSliders(data) {
+            console.log('updateParameterSliders chiamata con:', data);
+            
+            // Ottieni i riferimenti agli slider
+            const basePriceSlider = document.getElementById('basePrice');
+            const bytePriceSlider = document.getElementById('bytePrice');
+            
+            // Ottieni i riferimenti ai valori visualizzati
+            const basePriceValue = document.getElementById('basePriceValue');
+            const bytePriceValue = document.getElementById('bytePriceValue');
+            
+            console.log('Riferimenti agli elementi DOM:', {
+                basePriceSlider: !!basePriceSlider,
+                bytePriceSlider: !!bytePriceSlider,
+                basePriceValue: !!basePriceValue,
+                bytePriceValue: !!bytePriceValue,
+                temporaryBasePrice: data.temporaryBasePrice,
+                temporaryKBPrice: data.temporaryKBPrice
+            });
+            
+            // Aggiorna gli slider solo se non sono stati modificati dall'utente
+            if (basePriceSlider && !basePriceSlider.dataset.userModified && basePriceValue) {
+                basePriceSlider.value = data.temporaryBasePrice;
+                updateElementWithHighlight(basePriceValue, formatAlgoPrice(data.temporaryBasePrice));
+            }
+            
+            if (bytePriceSlider && !bytePriceSlider.dataset.userModified && bytePriceValue) {
+                bytePriceSlider.value = data.temporaryKBPrice;
+                updateElementWithHighlight(bytePriceValue, formatAlgoPrice(data.temporaryKBPrice));
+            }
+        }
+
+        // Funzione per formattare i prezzi in Algo se non già definita
+        function formatAlgoPrice(value) {
+            if (typeof value !== 'number') {
+                console.warn('formatAlgoPrice chiamata con un valore non numerico:', value);
+                return 'N/D';
+            }
+            return value.toLocaleString();
+        }
+
+        // Quando l'utente muove uno slider, imposta il flag per indicare che è stato modificato
+        document.addEventListener('DOMContentLoaded', function() {
+            const basePriceSlider = document.getElementById('basePrice');
+            const bytePriceSlider = document.getElementById('bytePrice');
+            const basePriceValue = document.getElementById('basePriceValue');
+            const bytePriceValue = document.getElementById('bytePriceValue');
+            
+            if (basePriceSlider) {
+                basePriceSlider.addEventListener('input', function() {
+                    // Imposta il flag di modifica utente
+                    this.dataset.userModified = 'true';
+                    // Aggiorna il valore visualizzato
+                    if (basePriceValue) {
+                        updateElementWithHighlight(basePriceValue, formatAlgoPrice(this.value), true);
+                    }
+                });
+            }
+            
+            if (bytePriceSlider) {
+                bytePriceSlider.addEventListener('input', function() {
+                    // Imposta il flag di modifica utente
+                    this.dataset.userModified = 'true';
+                    // Aggiorna il valore visualizzato
+                    if (bytePriceValue) {
+                        updateElementWithHighlight(bytePriceValue, formatAlgoPrice(this.value), true);
+                    }
+                });
             }
         });
     </script>
