@@ -1,0 +1,72 @@
+body {
+  background-color: #f8f9fa;
+  font-family: 'Arial', sans-serif;
+  padding-bottom: 2rem;
+}
+
+.container {
+  max-width: 900px;
+}
+
+.card {
+  border-radius: 10px;
+  overflow: hidden;
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  padding: 1rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.btn {
+  border-radius: 5px;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.progress {
+  height: 25px;
+  border-radius: 5px;
+}
+
+.alert {
+  border-radius: 5px;
+}
+
+header h1 {
+  margin-bottom: 1rem;
+  color: #0d6efd;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+#wallet-address {
+  word-break: break-all;
+}
+
+#file-cid {
+  word-break: break-all;
+}
+
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+} 
