@@ -176,7 +176,71 @@ pm2 start server.js --name "storage-estimator"
 
 ### Deployment su Vercel
 
-L'applicazione è configurata per essere deployata su Vercel. Basta collegare il repository al tuo account Vercel.
+L'applicazione è configurata per essere deployata su Vercel attraverso il file `vercel.json`. Tuttavia, poiché si tratta di un'applicazione Express complessa con gestione di file, potrebbero verificarsi alcuni problemi.
+
+#### Risoluzione Errori su Vercel
+
+Se riscontri un errore come:
+
+```
+This Serverless Function has crashed.
+500: INTERNAL_SERVER_ERROR
+Code: FUNCTION_INVOCATION_FAILED
+```
+
+Segui questi passaggi per risolvere il problema:
+
+1. **Verifica la versione di Node.js**: Assicurati che il progetto utilizzi una versione di Node.js compatibile con Vercel. Puoi specificarla nel file `package.json`:
+   ```json
+   "engines": {
+     "node": ">=14.x <=18.x"
+   }
+   ```
+
+2. **Controlla il file `vercel.json`**: Verifica che la configurazione sia corretta. Ecco un esempio funzionante:
+   ```json
+   {
+     "version": 2,
+     "builds": [
+       {
+         "src": "server.js",
+         "use": "@vercel/node"
+       }
+     ],
+     "routes": [
+       {
+         "src": "/(.*)",
+         "dest": "/server.js"
+       }
+     ]
+   }
+   ```
+
+3. **Limiti delle funzioni serverless**: Vercel ha dei limiti per le funzioni serverless:
+   - Tempo di esecuzione massimo: 10 secondi (piano gratuito)
+   - Memoria massima: 1024 MB
+   - Dimensione payload massima: 4.5 MB
+   
+   Se la tua applicazione supera questi limiti, considera l'ottimizzazione del codice o l'upgrade a un piano a pagamento.
+
+4. **Gestione dei file**: Le funzioni serverless di Vercel hanno un filesystem temporaneo. Se l'applicazione salva file che devono persistere, dovrai:
+   - Utilizzare servizi di storage esterni come S3, Firebase Storage, ecc.
+   - Modificare il codice per gestire i file in memoria invece che sul filesystem
+
+5. **Debugging con i log**: Attiva i log dettagliati su Vercel:
+   - Nel dashboard di Vercel, vai al tuo progetto
+   - Vai alla sezione "Deployments" e seleziona il deployment con errori
+   - Clicca su "Functions" per vedere i log dettagliati
+
+6. **Deployment locale per test**: Prima di deployare su Vercel, puoi testare l'applicazione con Vercel CLI:
+   ```bash
+   npm install -g vercel
+   vercel dev
+   ```
+
+7. **Soluzioni alternative**:
+   - Considera l'hosting su piattaforme come Heroku, DigitalOcean o Railway che supportano meglio applicazioni Express complete
+   - Separa il frontend dal backend e utilizza Vercel solo per il frontend statico
 
 ## Note Tecniche
 
